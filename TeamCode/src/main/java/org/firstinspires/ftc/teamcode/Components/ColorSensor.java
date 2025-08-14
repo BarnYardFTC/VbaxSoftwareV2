@@ -1,9 +1,9 @@
-package org.firstinspires.ftc.teamcode.components;
+package org.firstinspires.ftc.teamcode.Components;
 
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.components.GlobalData.SampleColor;
+import org.firstinspires.ftc.teamcode.Components.GlobalData.SampleColor;
 
 public class ColorSensor {
     private static final float GAIN = 2f;

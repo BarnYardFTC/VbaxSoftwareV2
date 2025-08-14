@@ -1,6 +1,4 @@
-package org.firstinspires.ftc.teamcode.components;
-
-import android.widget.EdgeEffect;
+package org.firstinspires.ftc.teamcode.Components;
 
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;

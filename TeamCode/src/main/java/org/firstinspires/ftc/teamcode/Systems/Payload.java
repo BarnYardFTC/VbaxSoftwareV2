@@ -1,21 +1,25 @@
-package org.firstinspires.ftc.teamcode.systems;
+package org.firstinspires.ftc.teamcode.Systems;
 
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 
-import org.firstinspires.ftc.teamcode.components.ColorSensor;
-import org.firstinspires.ftc.teamcode.components.EndEffector;
-import org.firstinspires.ftc.teamcode.components.GlobalData;
+import org.firstinspires.ftc.teamcode.Components.ColorSensor;
+import org.firstinspires.ftc.teamcode.Components.EndEffector;
+import org.firstinspires.ftc.teamcode.Components.GlobalData;
+import org.firstinspires.ftc.teamcode.Components.Leds;
 
 public class Payload {
+    private Leds leds;
     private EndEffector endEffector;
     private ColorSensor colorSensor;
     private enum ControlMode {INTAKE, UNLOAD, HOLD}
     private ControlMode controlMode;
     private GlobalData.Alliance alliance;
-    public Payload(CRServo leftServo, CRServo rightServo, NormalizedColorSensor colorSensor, GlobalData.Alliance alliance) {
+    public Payload(CRServo leftServo, CRServo rightServo, NormalizedColorSensor colorSensor, GlobalData.Alliance alliance, RevBlinkinLedDriver leds) {
         this.endEffector = new EndEffector(leftServo, rightServo);
         this.colorSensor = new ColorSensor(colorSensor);
+        this.leds = new Leds(leds);
         this.alliance = alliance;
         controlMode = ControlMode.HOLD;
     }
@@ -23,6 +27,7 @@ public class Payload {
         colorSensor.operate();
         determineControlMode();
         connectModeToBehaviour();
+
         update();
     }
     private void determineControlMode() {
@@ -56,4 +61,13 @@ public class Payload {
     public void unload() {
         controlMode = ControlMode.UNLOAD;
     }
+    private void operateLeds() {
+        if (colorSensor.isSampleDetected()) {
+            leds.displaySampleColor(colorSensor.getSampleColor());
+        } else {
+            leds.turnOff();
+        }
+    }
+
+
 }

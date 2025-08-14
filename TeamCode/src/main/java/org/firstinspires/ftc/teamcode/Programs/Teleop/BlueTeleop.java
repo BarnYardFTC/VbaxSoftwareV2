@@ -1,9 +1,9 @@
-package org.firstinspires.ftc.teamcode.Programs.teleop;
+package org.firstinspires.ftc.teamcode.Programs.Teleop;
 
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import org.firstinspires.ftc.teamcode.components.GlobalData;
+import org.firstinspires.ftc.teamcode.Components.GlobalData;
 
 @TeleOp(name = "blueTeleop", group = "TeleopMain")
 public class BlueTeleop extends LinearOpMode {

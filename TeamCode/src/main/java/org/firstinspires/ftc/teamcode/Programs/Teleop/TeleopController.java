@@ -1,18 +1,19 @@
-package org.firstinspires.ftc.teamcode.Programs.teleop;
+package org.firstinspires.ftc.teamcode.Programs.Teleop;
 
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 
-import org.firstinspires.ftc.teamcode.components.Arm;
-import org.firstinspires.ftc.teamcode.components.GlobalData;
-import org.firstinspires.ftc.teamcode.components.GlobalData.Alliance;
-import org.firstinspires.ftc.teamcode.systems.Drivetrain;
-import org.firstinspires.ftc.teamcode.systems.Payload;
+import org.firstinspires.ftc.teamcode.Components.Arm;
+import org.firstinspires.ftc.teamcode.Components.GlobalData;
+import org.firstinspires.ftc.teamcode.Components.GlobalData.Alliance;
+import org.firstinspires.ftc.teamcode.Systems.Drivetrain;
+import org.firstinspires.ftc.teamcode.Systems.Payload;
 
 public class TeleopController {
     private final double TRIGGER_TOLERANCE = 0.05;
@@ -34,7 +35,8 @@ public class TeleopController {
                 hardwareMap.get(CRServo.class, "leftServo"),
                 hardwareMap.get(CRServo.class, "rightServo"),
                 hardwareMap.get(NormalizedColorSensor.class, "colorSensor"),
-                alliance
+                alliance,
+                hardwareMap.get(RevBlinkinLedDriver.class, "leds")
         );
 
         this.gamepadEx1 = gamepadEx1;

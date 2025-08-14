@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.components;
+package org.firstinspires.ftc.teamcode.Components;
 
 public class GlobalData {
     public enum Alliance{

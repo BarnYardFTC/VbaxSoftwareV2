@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.components;
+package org.firstinspires.ftc.teamcode.Components;
 
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 
