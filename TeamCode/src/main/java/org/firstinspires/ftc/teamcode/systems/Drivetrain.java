@@ -1,10 +1,11 @@
-package org.firstinspires.ftc.teamcode.Systems;
+package org.firstinspires.ftc.teamcode.systems;
 
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.teamcode.Components.DriveComponent;
-import org.firstinspires.ftc.teamcode.Components.Otos;
+import org.firstinspires.ftc.teamcode.components.DriveComponent;
+import org.firstinspires.ftc.teamcode.components.Otos;
+
 
 public class Drivetrain {
     private DriveComponent driveComponent;

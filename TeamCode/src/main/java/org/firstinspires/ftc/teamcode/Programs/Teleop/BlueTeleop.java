@@ -1,5 +1,19 @@
-package org.firstinspires.ftc.teamcode.Programs.Teleop;
+package org.firstinspires.ftc.teamcode.Programs.teleop;
 
-public class BlueTeleop {
+import com.arcrobotics.ftclib.gamepad.GamepadEx;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import org.firstinspires.ftc.teamcode.components.GlobalData;
 
+@TeleOp(name = "blueTeleop", group = "TeleopMain")
+public class BlueTeleop extends LinearOpMode {
+    private TeleopController teleopController;
+    @Override
+    public void runOpMode() throws InterruptedException {
+        teleopController = new TeleopController(hardwareMap, new GamepadEx(gamepad1), new GamepadEx(gamepad2), GlobalData.Alliance.BLUE, 0);
+        waitForStart();
+        while (opModeIsActive()) {
+            teleopController.operate();
+        }
+    }
 }
