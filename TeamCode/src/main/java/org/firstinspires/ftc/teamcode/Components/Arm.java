@@ -25,7 +25,7 @@ public class Arm {
     private final double ZERO_POWER_TOLERANCE = 15;
     private final double MANUAL_MODIFIER = 0.4;
 
-    public static double p = 0.028, i = 0, d = 0.0018;
+    public static double p = 0.028, d = 0.0018;
     public static double f = 0.13;
     private PIDController pidController;
 
@@ -39,6 +39,7 @@ public class Arm {
     private double deltaAngle;
     private double angle;
     private double targetAngle;
+
     public Arm(DcMotor leftArm, DcMotor rightArm, GlobalData.OpmodeType opmodeType) {
         this.leftArm = leftArm;
         this.rightArm = rightArm;
@@ -63,72 +64,57 @@ public class Arm {
         power = 0;
         manualPower = 0;
         controlMode = ControlMode.AUTO_CONTROL;
-        pidController = new PIDController(p,i,d);
+        pidController = new PIDController(p,0,d);
     }
-    public void operate() {
+
+    public void operate(){
         determinePower();
         setPower();
         update();
     }
-    private void determinePower() {
-        if (controlMode == ControlMode.AUTO_CONTROL) {
-            auto();
-        }
-        else {
-            manual();
-        }
+
+    private void determinePower(){
+        if (controlMode == ControlMode.AUTO_CONTROL) auto();
         limitPower();
     }
-    private void limitPower() {
-        if (angle <= MINIMUM_SOFT_LIMIT) power = Math.max(power, 0);
-        else if (angle >= MAXIMUM_SOFT_LIMIT) power = Math.min(power, 0);
-        power = Math.max(-1, Math.min(1, power));
+
+    private void auto(){
+
     }
-    private void setPower() {
-        leftArm.setPower(power);
+
+    public void operateManually(){
+
+    }
+
+    private void setPower(){
         rightArm.setPower(power);
+        leftArm.setPower(power);
     }
-    private void update() {
-        updateData();updateData();
+
+    private void update(){
+        updateData();
         controlMode = ControlMode.AUTO_CONTROL;
     }
-    private void updateData() {
-        deltaAngle = ticksToDegrees(leftArm.getCurrentPosition());
-        angle = DEFAULT + deltaAngle;
-        if (controlMode == ControlMode.MANUAL_CONTROL) targetAngle = angle;
+
+    private void limitPower(){
+
     }
-    private void auto() {
-        pidController.setPID(p, i, d);
-        double pid = pidController.calculate(angle, targetAngle);
-        double ff = Math.cos(Math.toRadians(targetAngle - 90)) * f;
-        if (isPowerReleaseReq()) power = 0;
-        else power = pid + ff;
+
+    private void updateData(){
+
     }
-    private void manual() {
-        double ff = Math.cos(Math.toRadians(targetAngle - 90)) * f;
-        power = manualPower * MANUAL_MODIFIER + ff;
+
+    private double calculateFF() {
+        return 0; //Todo
     }
-    public void operateManual(double power) {
-        this.manualPower = power;
-        controlMode = ControlMode.MANUAL_CONTROL;
+
+    private void isPowerReleaseRequired(){
+
     }
-    private boolean isPowerReleaseReq() {
-        boolean atMin = areAnglesEqual(targetAngle, MINIMUM_SOFT_LIMIT, ANGLE_TOLERANCE) &&
-                areAnglesEqual(angle, MINIMUM_SOFT_LIMIT, ZERO_POWER_TOLERANCE);
-        boolean atMax = areAnglesEqual(targetAngle, MAXIMUM_SOFT_LIMIT, ANGLE_TOLERANCE) &&
-                areAnglesEqual(angle, MAXIMUM_SOFT_LIMIT, ZERO_POWER_TOLERANCE);
-        if (atMin || atMax) return true;
-        else return false;
+
+    private double encodersToDegrees(double encoders){
+        return encoders / TICKS_PER_DEGREE;
     }
-    private boolean areAnglesEqual(double angle1, double angle2, double tolerance) {
-        if (Math.abs(angle1 - angle2) <= tolerance) return true;
-        else return false;
-    }
-    public void setTargetAngle(double targetAngle) {
-        this.targetAngle = targetAngle;
-        controlMode = ControlMode.AUTO_CONTROL;
-    }
-    private double ticksToDegrees(double ticks) {
-        return ticks / TICKS_PER_DEGREE;
-    }
+
+
 }
