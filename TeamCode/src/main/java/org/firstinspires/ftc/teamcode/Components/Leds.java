@@ -43,6 +43,7 @@ public class Leds {
     }
 
     public void turnOff() {
+        ledDriver.close();
         setPattern(RevBlinkinLedDriver.BlinkinPattern.BLACK);
     }
 
@@ -67,4 +68,5 @@ public class Leds {
     private void displayYellow() {
         setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
     }
+
 }

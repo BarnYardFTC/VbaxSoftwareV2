@@ -4,6 +4,7 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -22,7 +23,14 @@ public class TeleopController {
     private GamepadEx gamepadEx1;
     private GamepadEx gamepadEx2;
     private Payload payload;
-    public TeleopController(HardwareMap hardwareMap, GamepadEx gamepadEx1, GamepadEx gamepadEx2, Alliance alliance, double headingOffset) {
+
+    private OpMode opMode;
+
+    public TeleopController(OpMode opMode, Alliance alliance, double headingOffset) {
+
+        this.opMode = opMode;
+        HardwareMap hardwareMap = opMode.hardwareMap;
+
         this.drivetrain = new Drivetrain(
                 hardwareMap.get(DcMotor.class, "leftFront"),
                 hardwareMap.get(DcMotor.class, "rightFront"),
@@ -39,8 +47,8 @@ public class TeleopController {
                 hardwareMap.get(RevBlinkinLedDriver.class, "leds")
         );
 
-        this.gamepadEx1 = gamepadEx1;
-        this.gamepadEx2 = gamepadEx2;
+        this.gamepadEx1 = new GamepadEx(opMode.gamepad1);
+        this.gamepadEx2 = new GamepadEx(opMode.gamepad2);
 
         this.arm = new Arm(
                 hardwareMap.get(DcMotor.class, "leftArm"),
@@ -51,6 +59,7 @@ public class TeleopController {
         operateDrivetrain();
         operateArm();
         operatePayload();
+//        operateTelemetry();
 
         gamepadEx1.readButtons();
         gamepadEx2.readButtons();
@@ -73,5 +82,11 @@ public class TeleopController {
     private void operatePayload() {
         if (gamepadEx2.isDown(GamepadKeys.Button.RIGHT_BUMPER)) payload.intake();
         if (gamepadEx2.isDown(GamepadKeys.Button.LEFT_BUMPER)) payload.unload();
+
+        payload.operate();
+    }
+
+    private void operateTelemetry(){
+        opMode.telemetry.update();
     }
 }

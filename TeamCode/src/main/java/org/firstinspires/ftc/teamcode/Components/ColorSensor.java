@@ -63,8 +63,8 @@ public class ColorSensor {
     }
     public void operate() {
         if (loop_tracker >= DATA_TRACKING_LOOPS_DELAY) {
-            determineSampleColor();
-            determineIsSampleDetected();
+            cashedSampleColor = determineSampleColor();
+            cashedIsSampleDetected = determineIsSampleDetected();
             loop_tracker = 0;
         }
         loop_tracker++;

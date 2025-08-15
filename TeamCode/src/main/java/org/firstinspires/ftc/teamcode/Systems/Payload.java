@@ -23,10 +23,12 @@ public class Payload {
         this.alliance = alliance;
         controlMode = ControlMode.HOLD;
     }
+
     public void operate() {
         colorSensor.operate();
         determineControlMode();
         connectModeToBehaviour();
+        operateLeds();
 
         update();
     }
@@ -34,10 +36,11 @@ public class Payload {
         if (colorSensor.isSampleDetected() && isOpposingAllianceSampleIn()) {
             controlMode = ControlMode.UNLOAD;
         }
-        else if (colorSensor.isSampleDetected() && !isOpposingAllianceSampleIn()) {
+        else if (colorSensor.isSampleDetected() && !isOpposingAllianceSampleIn() && controlMode == ControlMode.INTAKE) {
             controlMode = ControlMode.HOLD;
         }
     }
+
     private void connectModeToBehaviour() {
         if (controlMode == ControlMode.INTAKE) endEffector.intake();
         else if (controlMode == ControlMode.UNLOAD) endEffector.unload();
@@ -50,7 +53,7 @@ public class Payload {
         if (alliance == GlobalData.Alliance.BLUE && colorSensor.getSampleColor() == GlobalData.SampleColor.RED) {
             return true;
         }
-        else if (alliance == GlobalData.Alliance.RED && colorSensor.getSampleColor() == GlobalData.SampleColor.RED) {
+        else if (alliance == GlobalData.Alliance.RED && colorSensor.getSampleColor() == GlobalData.SampleColor.BLUE) {
             return true;
         }
         else return false;
@@ -68,6 +71,5 @@ public class Payload {
             leds.turnOff();
         }
     }
-
 
 }

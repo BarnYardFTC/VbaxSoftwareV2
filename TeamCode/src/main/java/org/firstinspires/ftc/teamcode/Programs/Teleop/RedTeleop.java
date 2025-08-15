@@ -10,7 +10,7 @@ public class RedTeleop extends LinearOpMode {
     private TeleopController teleopController;
     @Override
     public void runOpMode() throws InterruptedException {
-        teleopController = new TeleopController(hardwareMap, new GamepadEx(gamepad1), new GamepadEx(gamepad2), GlobalData.Alliance.RED, 0);
+        teleopController = new TeleopController(this, GlobalData.Alliance.RED, 0);
         waitForStart();
         while (opModeIsActive()) {
             teleopController.operate();
