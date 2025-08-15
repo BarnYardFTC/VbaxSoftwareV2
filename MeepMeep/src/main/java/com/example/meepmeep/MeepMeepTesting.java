@@ -20,7 +20,7 @@ public class MeepMeepTesting {
         RoadRunnerBotEntity robot = new DefaultBotBuilder(meepMeep)
                 .setConstraints(100, 100, Math.toRadians(720), Math.toRadians(720), 14)
                 .build();
-        robot.setDimensions(15, 16.5);
+        robot.setDimensions(18, 18);
 
         // Build the two trajectories
         Action traj1 = buildStrafeToLinearHeading(robot, START_POSE, MID_POSE);

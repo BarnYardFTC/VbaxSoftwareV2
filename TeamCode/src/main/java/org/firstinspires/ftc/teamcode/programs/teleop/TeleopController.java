@@ -177,11 +177,6 @@ public class TeleopController {
 
 
     private void operateTelemetry(){
-        telemetry.addData("loopsPerSecond", getLoopsPerSecond());
-        telemetry.addData("controlMode", arm.controlModeData);
-        telemetry.addData("powerReleaseReq", arm.isPowerReleaseRequired());
-        telemetry.addData("power", arm.power);
-        telemetry.addData("angle", arm.angle);
         telemetry.update();
     }
 

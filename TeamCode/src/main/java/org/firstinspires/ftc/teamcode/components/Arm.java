@@ -32,8 +32,9 @@ public class Arm {
 
     // Control tolerances
     private static final double NO_POWER_TOLERANCE     = 10;
-    private static final double ANGLES_EQUAL_TOLERANCE = 6;
+    private static final double ANGLES_EQUAL_TOLERANCE = 5;
     private static final double MANUAL_POWER_MODIFIER  = 0.4;
+    private static final double NO_MOVEMENT_TOLERANCE = 0.05;
 
     // PID + Feedforward constants
     private static double p = 0.028, i = 0, d = 0.002;
@@ -53,9 +54,10 @@ public class Arm {
     private ControlMode controlMode;
 
     private PIDController pidController;
-    public double power; //Todo
+    private double power; //Todo
     private double deltaAngle;
-    public double angle;
+    private double angle;
+    private double prevAngle;
     private double targetAngle;
 
     /* =========================
@@ -165,6 +167,7 @@ public class Arm {
     }
 
     private void updateData() {
+        prevAngle = angle;
         deltaAngle = ticksToDegrees(leftMotor.getCurrentPosition());
         angle = DEFAULT + deltaAngle;
 
@@ -196,5 +199,18 @@ public class Arm {
 
     private double ticksToDegrees(int ticks) {
         return ticks / TICKS_PER_DEGREE;
+    }
+
+
+        /* =========================
+            EXTERNAL DATA ACESS
+       ========================= */
+
+    public boolean arrivedTargetAngle(){
+        return isAngleEqual(angle, targetAngle, ANGLES_EQUAL_TOLERANCE);
+    }
+
+    public boolean armNotMoving() {
+        return Math.abs(prevAngle-angle) <= NO_MOVEMENT_TOLERANCE;
     }
 }
