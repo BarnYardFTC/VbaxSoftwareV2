@@ -74,8 +74,8 @@ public class TeleopController {
         this.payload = new Payload(
                 hardwareMap.get(RevBlinkinLedDriver.class, "leds"),
                 hardwareMap.get(NormalizedColorSensor.class, "colorSensor"),
-                hardwareMap.get(CRServo.class, "rightEndEffector"),
-                hardwareMap.get(CRServo.class, "leftEndEffector"),
+                hardwareMap.get(CRServo.class, "rightServo"),
+                hardwareMap.get(CRServo.class, "leftServo"),
                 alliance
         );
 
@@ -140,7 +140,7 @@ public class TeleopController {
 
         // Drive robot manually using left stick (translation) and right stick (rotation)
         drivetrain.moveManually(
-                -gamepadEx1.getLeftX(),
+                gamepadEx1.getLeftX(),
                 gamepadEx1.getLeftY(),
                 gamepadEx1.getRightX()
         );
