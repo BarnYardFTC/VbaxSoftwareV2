@@ -3,8 +3,8 @@ package org.firstinspires.ftc.teamcode.systems;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.teamcode.components.MecanumDriveComponent;
-import org.firstinspires.ftc.teamcode.components.Otos;
+import org.firstinspires.ftc.teamcode.Components.MecanumDriveComponent;
+import org.firstinspires.ftc.teamcode.Components.Otos;
 
 public class Drivetrain {
 

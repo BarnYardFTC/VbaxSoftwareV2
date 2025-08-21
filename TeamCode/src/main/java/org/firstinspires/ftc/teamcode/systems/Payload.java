@@ -6,11 +6,11 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.components.ColorSensorEx;
-import org.firstinspires.ftc.teamcode.components.EndEffector;
-import org.firstinspires.ftc.teamcode.components.GlobalData.Alliance;
-import org.firstinspires.ftc.teamcode.components.GlobalData.SampleColor;
-import org.firstinspires.ftc.teamcode.components.Leds;
+import org.firstinspires.ftc.teamcode.Components.ColorSensorEx;
+import org.firstinspires.ftc.teamcode.Components.EndEffector;
+import org.firstinspires.ftc.teamcode.Components.GlobalData.Alliance;
+import org.firstinspires.ftc.teamcode.Components.GlobalData.SampleColor;
+import org.firstinspires.ftc.teamcode.Components.Leds;
 
 @Config
 public class   Payload {
