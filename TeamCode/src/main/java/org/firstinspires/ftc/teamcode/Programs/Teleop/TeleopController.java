@@ -2,6 +2,11 @@ package org.firstinspires.ftc.teamcode.Programs.Teleop;
 
 import android.annotation.SuppressLint;
 
+import androidx.annotation.NonNull;
+
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.ParallelAction;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
@@ -185,4 +190,30 @@ public class TeleopController {
         gamepadEx1.readButtons();
         gamepadEx2.readButtons();
     }
+
+
+    private class BackgroundOperation implements Action {
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            arm.operate();
+            payload.operate();
+            drivetrain.operate();
+            operateGamepads();
+            operateTelemetry();
+            return true;
+        }
+    }
+    private Action backgroundOperation(){
+        return new BackgroundOperation();
+    }
+
+
+
+    public Action operateAction(){
+        return new ParallelAction(
+                backgroundOperation()
+        );
+    }
+
 }

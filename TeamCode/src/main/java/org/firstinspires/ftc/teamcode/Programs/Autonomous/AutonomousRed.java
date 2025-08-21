@@ -22,7 +22,7 @@ public class AutonomousRed extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        controller = new AutonomousController(hardwareMap, START_POSE, GlobalData.Alliance.RED);
+        controller = new AutonomousController(this, START_POSE, GlobalData.Alliance.RED);
         traj = controller.buildStrafeToLinearHeading(START_POSE, SCORE_POSE);
 
         waitForStart();

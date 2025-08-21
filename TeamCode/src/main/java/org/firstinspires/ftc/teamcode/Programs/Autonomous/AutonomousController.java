@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -16,17 +17,22 @@ import org.firstinspires.ftc.teamcode.Components.GlobalData;
 import org.firstinspires.ftc.teamcode.Components.roadRunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.systems.Payload;
 
+import java.util.Optional;
+
 public class AutonomousController {
 
-    public Arm arm;
-    public Payload payload;
-    public MecanumDrive drive;
+    private Arm arm;
+    private Payload payload;
+    private MecanumDrive drive;
 
     private final GlobalData.Alliance alliance;
 
-    public AutonomousController(HardwareMap hardwareMap, Pose2d startPose, GlobalData.Alliance alliance) {
+    private OpMode opMode;
+
+    public AutonomousController(OpMode opMode, Pose2d startPose, GlobalData.Alliance alliance) {
+        this.opMode = opMode;
         this.alliance = alliance;
-        initializeRobot(hardwareMap, startPose);
+        initializeRobot(opMode.hardwareMap, startPose);
     }
 
     private void initializeRobot(HardwareMap hardwareMap, Pose2d startPose) {
@@ -88,7 +94,7 @@ public class AutonomousController {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             payload.unload();
-            return !payload.isSampleDetected();
+            return payload.isSampleDetected();
         }
     }
 

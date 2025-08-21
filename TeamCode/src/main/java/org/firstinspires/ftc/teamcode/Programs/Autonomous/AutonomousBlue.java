@@ -22,7 +22,7 @@ public class AutonomousBlue extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        controller = new AutonomousController(hardwareMap, START_POSE, GlobalData.Alliance.BLUE);
+        controller = new AutonomousController(this, START_POSE, GlobalData.Alliance.BLUE);
         traj = controller.buildStrafeToLinearHeading(START_POSE, SCORE_POSE);
 
         waitForStart();
