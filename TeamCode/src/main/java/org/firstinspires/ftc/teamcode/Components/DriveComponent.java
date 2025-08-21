@@ -4,62 +4,101 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 public class DriveComponent {
-    private DcMotor leftFront, rightFront, leftBack, rightBack;
-    private double speedX, speedY, speedTurn;
-    private double speedModifier;
-    private final double SLOW_SPEED = 0.3;
-    private final double FAST_SPEED = 1.0;
 
+    /* =========================
+       HARDWARE REFERENCES
+       ========================= */
+    private final DcMotor leftFront;
+    private final DcMotor rightFront;
+    private final DcMotor leftBack;
+    private final DcMotor rightBack;
+
+    /* =========================
+       MOVEMENT STATE
+       ========================= */
+    private double spdX;
+    private double spdY;
+    private double spdTurn;
+
+    private double speedModifier;
+
+    /* =========================
+       CONSTANTS
+       ========================= */
+    private static final double SLOW_SPEED = 0.3;
+    private static final double FAST_SPEED = 1.0;
+
+    /* =========================
+       CONSTRUCTOR
+       ========================= */
     public DriveComponent(DcMotor leftFront, DcMotor rightFront, DcMotor leftBack, DcMotor rightBack) {
         this.leftFront = leftFront;
-        this.rightFront =rightFront;
+        this.rightFront = rightFront;
         this.leftBack = leftBack;
         this.rightBack = rightBack;
+
         initMotor(DcMotorSimple.Direction.REVERSE, leftFront);
         initMotor(DcMotorSimple.Direction.FORWARD, rightFront);
         initMotor(DcMotorSimple.Direction.REVERSE, leftBack);
         initMotor(DcMotorSimple.Direction.FORWARD, rightBack);
+
         initData();
     }
 
-    private void initMotor(DcMotorSimple.Direction direction, DcMotor motor){
+    /* =========================
+       INITIALIZATION HELPERS
+       ========================= */
+    private void initMotor(DcMotorSimple.Direction direction, DcMotor motor) {
         motor.setDirection(direction);
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
+
     private void initData() {
-        speedX = 0;
-        speedY = 0;
-        speedTurn = 0;
+        spdX = 0;
+        spdY = 0;
+        spdTurn = 0;
         activateFastMode();
     }
+
+    /* =========================
+       SPEED MODE CONTROL
+       ========================= */
     public void activateSlowMode() {
         speedModifier = SLOW_SPEED;
     }
+
     public void activateFastMode() {
         speedModifier = FAST_SPEED;
     }
-    public void changeSpdMode() {
-        if (speedModifier == SLOW_SPEED) activateFastMode();
-        else activateSlowMode();
+
+    public void toggleSpeedMode() {
+        if (speedModifier == SLOW_SPEED) {
+            activateFastMode();
+        } else {
+            activateSlowMode();
+        }
     }
 
-    public void determineSpeed(double spdX, double spdY, double spdT) {
-        speedX = spdX;
-        speedY = spdY;
-        speedTurn = spdT;
+    /* =========================
+       MOVEMENT CONTROL
+       ========================= */
+    public void determineSpeed(double spdX, double spdY, double spdTurn) {
+        this.spdX = spdX;
+        this.spdY = spdY;
+        this.spdTurn = spdTurn;
     }
 
     public void translateSpeedToPower() {
-        double lf = speedY + speedX + speedTurn;
-        double lb = speedY - speedX + speedTurn;
-        double rf = speedY - speedX - speedTurn;
-        double rb = speedY + speedX - speedTurn;
+        double lf = spdY + spdX + spdTurn;
+        double lb = spdY - spdX + spdTurn;
+        double rf = spdY - spdX - spdTurn;
+        double rb = spdY + spdX - spdTurn;
 
+//        // Normalize powers if needed
         double maxPower = Math.max(Math.max(Math.abs(lf), Math.abs(lb)),
                 Math.max(Math.abs(rf), Math.abs(rb)));
-
         if (maxPower > 1.0) {
             lf /= maxPower;
             lb /= maxPower;
@@ -67,11 +106,13 @@ public class DriveComponent {
             rb /= maxPower;
         }
 
+        // Apply speed modifier
         lf *= speedModifier;
         lb *= speedModifier;
         rf *= speedModifier;
         rb *= speedModifier;
 
+        // Set motor powers
         leftFront.setPower(lf);
         leftBack.setPower(lb);
         rightFront.setPower(rf);
@@ -79,11 +120,24 @@ public class DriveComponent {
     }
 
     public void adjustSpeed(double heading) {
-        double adjustedY,
-                adjustedX;
-        adjustedX = speedX * Math.cos(heading) - speedY * Math.sin(heading);
-        adjustedY = speedX * Math.sin(heading) + speedY * Math.cos(heading);
-        speedX = adjustedX;
-        speedY = adjustedY;
+        double adjustedX = spdX * Math.cos(heading) + spdY * Math.sin(heading);
+        double adjustedY = -spdX * Math.sin(heading) + spdY * Math.cos(heading);
+
+        spdX = adjustedX;
+        spdY = adjustedY;
+    }
+
+
+
+    public double getSpdX(){
+        return spdX;
+    }
+
+    public double getSpdY(){
+        return spdY;
+    }
+
+    public double getSpdTurn(){
+        return spdTurn;
     }
 }

@@ -1,59 +1,115 @@
 package org.firstinspires.ftc.teamcode.Programs.Teleop;
 
+import android.annotation.SuppressLint;
+
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
-import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Components.Arm;
 import org.firstinspires.ftc.teamcode.Components.GlobalData;
-import org.firstinspires.ftc.teamcode.Components.GlobalData.Alliance;
 import org.firstinspires.ftc.teamcode.Systems.Drivetrain;
+import org.firstinspires.ftc.teamcode.Systems.Payload;
 
 public class TeleopController {
-    private final double TRIGGER_TOLERANCE = 0.05;
-    private Drivetrain drivetrain;
-    private Arm arm;
-    private GamepadEx gamepadEx1;
-    private GamepadEx gamepadEx2;
-    public TeleopController(HardwareMap hardwareMap, GamepadEx gamepadEx1, GamepadEx gamepadEx2, Alliance alliance, double headingOffset) {
+
+    /* =========================
+       COMPONENTS & INPUT
+       ========================= */
+    private final Drivetrain drivetrain;
+
+    private final GamepadEx gamepadEx1;
+    private final GamepadEx gamepadEx2;
+
+    private final Telemetry telemetry;
+
+    /* =========================
+       CLASS VARIABLES
+   ========================= */
+
+    private long lastLoopTime = System.nanoTime();
+    private double loopHz = 0;
+
+
+    /* =========================
+       CONFIGURATION CONSTANTS
+       ========================= */
+    private static final double TRIGGER_DOWN_TOLERANCE = 0.05;
+
+    /* =========================
+       CONSTRUCTOR
+       ========================= */
+    public TeleopController(OpMode opMode, double headingOffset) {
+
+        HardwareMap hardwareMap = opMode.hardwareMap;
+
+        this.telemetry = opMode.telemetry;
+
+
+        // Initialize the Drivetrain with OTOS and 4 drive motors
         this.drivetrain = new Drivetrain(
-                hardwareMap.get(DcMotor.class, "leftFront"),
-                hardwareMap.get(DcMotor.class, "rightFront"),
-                hardwareMap.get(DcMotor.class, "leftBack"),
-                hardwareMap.get(DcMotor.class, "rightBack"),
-                hardwareMap.get(SparkFunOTOS.class, "otos"), headingOffset
+                hardwareMap.get(SparkFunOTOS.class, "otos"), headingOffset,
+                hardwareMap.get(DcMotorEx.class, "leftFront"),
+                hardwareMap.get(DcMotorEx.class, "leftBack"),
+                hardwareMap.get(DcMotorEx.class, "rightFront"),
+                hardwareMap.get(DcMotorEx.class, "rightBack")
         );
 
-        this.gamepadEx1 = gamepadEx1;
-        this.gamepadEx2 = gamepadEx2;
 
-        this.arm = new Arm(
-                hardwareMap.get(DcMotor.class, "leftArm"),
-                hardwareMap.get(DcMotor.class, "rightArm"), GlobalData.OpmodeType.TELEOP
-        );
+        this.gamepadEx1 = new GamepadEx(opMode.gamepad1);
+        this.gamepadEx2 = new GamepadEx(opMode.gamepad2);
     }
-    public void operate(){
-        operateDrivetrain();
-        operateArm();
 
+    /* =========================
+       MAIN OPERATION LOOP
+       ========================= */
+    public void operate() {
+        operateDrivetrain();
+        operateTelemetry();
+        operateGamepads();
+    }
+
+
+    /* =========================
+       DRIVETRAIN CONTROL LOGIC
+       ========================= */
+
+    private void operateDrivetrain() {
+        // Toggle speed mode on button A press (gamepad1)
+        if (gamepadEx1.wasJustPressed(GamepadKeys.Button.A)) {
+            drivetrain.changeSpdMode();
+        }
+
+        // Reset heading on button X press (gamepad1)
+        if (gamepadEx1.wasJustPressed(GamepadKeys.Button.X)) {
+            drivetrain.resetHeading();
+        }
+
+        // Drive robot manually using left stick (translation) and right stick (rotation)
+        drivetrain.moveManually(
+                gamepadEx1.getLeftX(),
+                gamepadEx1.getLeftY(),
+                gamepadEx1.getRightX()
+        );
+
+        drivetrain.operate();
+    }
+
+
+    private void operateTelemetry(){
+        telemetry.addData("heading", drivetrain.getHeading());
+        telemetry.update();
+    }
+
+    private void operateGamepads(){
         gamepadEx1.readButtons();
         gamepadEx2.readButtons();
-    }
-    private void operateDrivetrain() {
-        drivetrain.operate(-gamepadEx1.getLeftX(), gamepadEx1.getLeftY(), gamepadEx1.getRightX(),
-                gamepadEx1.wasJustPressed(GamepadKeys.Button.A), gamepadEx1.wasJustPressed(GamepadKeys.Button.X));
-    }
-    private void operateArm() {
-        double power = gamepadEx2.gamepad.right_trigger - gamepadEx2.gamepad.left_trigger;
-        if (Math.abs(power)>TRIGGER_TOLERANCE) arm.operateManual(power);
-        if (gamepadEx2.wasJustPressed(GamepadKeys.Button.X)) arm.setTargetAngle(Arm.PREP_SPECIMEN);
-        if (gamepadEx2.wasJustPressed(GamepadKeys.Button.DPAD_UP)) arm.setTargetAngle(Arm.SCORE_SPECIMEN);
-        if (gamepadEx2.wasJustPressed(GamepadKeys.Button.B)) arm.setTargetAngle(Arm.PREP_SUB);
-        if (gamepadEx2.wasJustPressed(GamepadKeys.Button.Y)) arm.setTargetAngle(Arm.COLLECT);
-        if (gamepadEx2.wasJustPressed(GamepadKeys.Button.A)) arm.setTargetAngle(Arm.DEFAULT);
-
-        arm.operate();
     }
 }
