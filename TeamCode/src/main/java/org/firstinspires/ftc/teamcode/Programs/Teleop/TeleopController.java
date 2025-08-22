@@ -24,18 +24,12 @@ public class TeleopController {
        COMPONENTS & INPUT
        ========================= */
     private final Drivetrain drivetrain;
+    private final Arm arm;
 
     private final GamepadEx gamepadEx1;
     private final GamepadEx gamepadEx2;
 
     private final Telemetry telemetry;
-
-    /* =========================
-       CLASS VARIABLES
-   ========================= */
-
-    private long lastLoopTime = System.nanoTime();
-    private double loopHz = 0;
 
 
     /* =========================
@@ -63,6 +57,14 @@ public class TeleopController {
         );
 
 
+        this.arm = new Arm(
+                hardwareMap.get(DcMotorEx.class , "rightArm"),
+                hardwareMap.get(DcMotorEx.class,"leftArm"),
+                GlobalData.OpmodeType.TELEOP
+        );
+
+
+
         this.gamepadEx1 = new GamepadEx(opMode.gamepad1);
         this.gamepadEx2 = new GamepadEx(opMode.gamepad2);
     }
@@ -74,6 +76,7 @@ public class TeleopController {
         operateDrivetrain();
         operateTelemetry();
         operateGamepads();
+        operateArm();
     }
 
 
@@ -102,9 +105,37 @@ public class TeleopController {
         drivetrain.operate();
     }
 
+    private void operateArm(){
+        double manualPower = gamepadEx2.gamepad.right_trigger - gamepadEx2.gamepad.left_trigger;
+        if (manualPower > 0){
+            arm.operateManually(manualPower);
+        }
+        else if (gamepadEx2.wasJustPressed(GamepadKeys.Button.A)) {
+            arm.setTargetAngle(Arm.DEFAULT);
+        }
+        else if (gamepadEx2.wasJustPressed(GamepadKeys.Button.B)) {
+            arm.setTargetAngle(Arm.PREP_SUB);
+        }
+        else if (gamepadEx2.wasJustPressed(GamepadKeys.Button.X)) {
+            arm.setTargetAngle(Arm.SCORE_SPECIMEN);
+        }
+        else if (gamepadEx2.wasJustPressed(GamepadKeys.Button.Y)) {
+            arm.setTargetAngle(Arm.COLLECT);
+        }
+        else if (gamepadEx2.wasJustPressed(GamepadKeys.Button.DPAD_UP)) {
+            arm.setTargetAngle(Arm.PREP_SPECIMEN);
+        }
+
+        arm.operate();
+    }
+
 
     private void operateTelemetry(){
-        telemetry.addData("heading", drivetrain.getHeading());
+        telemetry.addData("angle" ,  arm.getAngle());
+        telemetry.addData("targetAngle" , arm.getTargetAngle());
+        telemetry.addData("controlMode" , arm.getControlMode());
+        telemetry.addData("isPowerReleaseRequired",arm.isPowerReleaseRequired());
+        telemetry.addData("power" , arm.getPower());
         telemetry.update();
     }
 

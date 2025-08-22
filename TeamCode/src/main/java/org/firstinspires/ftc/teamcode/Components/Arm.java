@@ -21,7 +21,7 @@ public class Arm {
     public static final double COLLECT = MAXIMUM_SOFT_LIMIT;
     public static final double PREP_SUB = 275;
 
-    private final double ANGLE_TOLERANCE = 3;
+    private final double ANGLE_TOLERANCE = 5;
     private final double ZERO_POWER_TOLERANCE = 15;
     private final double MANUAL_MODIFIER = 0.4;
 
@@ -35,8 +35,6 @@ public class Arm {
     private GlobalData.OpmodeType opmodeType;
 
     private double power;
-    private double manualPower;
-    private double deltaAngle;
     private double angle;
     private double targetAngle;
 
@@ -59,10 +57,9 @@ public class Arm {
     }
     private void initData() {
         angle = DEFAULT;
-        deltaAngle = 0;
         targetAngle = angle;
         power = 0;
-        manualPower = 0;
+
         controlMode = ControlMode.AUTO_CONTROL;
         pidController = new PIDController(p,0,d);
     }
@@ -74,17 +71,23 @@ public class Arm {
     }
 
     private void determinePower(){
-        if (controlMode == ControlMode.AUTO_CONTROL) auto();
+        if (controlMode == ControlMode.AUTO_CONTROL && !isPowerReleaseRequired()) auto();
+        else {
+            power = 0;
+        }
         limitPower();
     }
 
     private void auto(){
-
+        double pid = pidController.calculate(angle, targetAngle);
+        power = pid + calculateFF();
     }
 
-    public void operateManually(){
-
+    public void operateManually(double power){
+        controlMode = ControlMode.MANUAL_CONTROL;
+        this.power = power * MANUAL_MODIFIER+calculateFF();
     }
+
 
     private void setPower(){
         rightArm.setPower(power);
@@ -97,19 +100,39 @@ public class Arm {
     }
 
     private void limitPower(){
-
+        if(isAngleEqual(angle,MINIMUM_SOFT_LIMIT,ANGLE_TOLERANCE)) {
+            power = Math.max(0, power);
+        }
+        else if(isAngleEqual(angle, MAXIMUM_SOFT_LIMIT, ANGLE_TOLERANCE)){
+            power = Math.min(0,power);
+        }
     }
 
     private void updateData(){
-
+        double deltaAngle = encodersToDegrees(rightArm.getCurrentPosition());
+        angle = deltaAngle + MINIMUM_SOFT_LIMIT; //or default
     }
 
     private double calculateFF() {
-        return 0; //Todo
+        return f * Math.cos(Math.toRadians(angle - 90)) ; // you're basically subtracting 90
+                                                          // to turn the unit circle 90 degrees
     }
 
-    private void isPowerReleaseRequired(){
+    public boolean isPowerReleaseRequired(){
+        if(isAngleEqual(angle,targetAngle,ZERO_POWER_TOLERANCE)&&
+         (targetAngle == MAXIMUM_SOFT_LIMIT || targetAngle == MINIMUM_SOFT_LIMIT)){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
 
+    private boolean isAngleEqual(double a1, double a2, double tolerance){// a1 = 50, a2 = 50.65, tolerance = 1
+        if(Math.abs(a2-a1)<=tolerance){
+            return true;
+        }
+        else{return false;}
     }
 
     private double encodersToDegrees(double encoders){
@@ -117,4 +140,27 @@ public class Arm {
     }
 
 
+
+    public double getAngle(){
+        return angle;
+    }
+    public double getPower(){
+        return power;
+    }
+
+    public void setTargetAngle(double targetAngle){
+        this.targetAngle = targetAngle;
+    }
+
+    public double getTargetAngle(){
+        return targetAngle;
+    }
+
+    public boolean hasArrivedTarget(){
+        return isAngleEqual(angle, targetAngle, ANGLE_TOLERANCE);
+    }
+
+    public ControlMode getControlMode(){
+        return controlMode;
+    }
 }

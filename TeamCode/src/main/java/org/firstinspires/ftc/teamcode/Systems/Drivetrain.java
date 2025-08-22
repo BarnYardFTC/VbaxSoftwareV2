@@ -4,7 +4,6 @@ import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Components.DriveComponent;
-import org.firstinspires.ftc.teamcode.Components.MecanumDriveComponent;
 import org.firstinspires.ftc.teamcode.Components.Otos;
 
 public class Drivetrain {
