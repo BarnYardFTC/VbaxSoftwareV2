@@ -71,14 +71,15 @@ public class Arm {
     }
 
     private void determinePower(){
-        if (controlMode == ControlMode.AUTO_CONTROL && !isPowerReleaseRequired()) auto();
-        else {
-            power = 0;
+        if (controlMode == ControlMode.AUTO_CONTROL){
+            if (!isPowerReleaseRequired()) auto();
+            else power = 0;
         }
         limitPower();
     }
 
     private void auto(){
+        pidController.setPID(p,0,d);
         double pid = pidController.calculate(angle, targetAngle);
         power = pid + calculateFF();
     }
@@ -96,6 +97,7 @@ public class Arm {
 
     private void update(){
         updateData();
+        if (controlMode == ControlMode.MANUAL_CONTROL) targetAngle = angle;
         controlMode = ControlMode.AUTO_CONTROL;
     }
 
@@ -109,7 +111,7 @@ public class Arm {
     }
 
     private void updateData(){
-        double deltaAngle = encodersToDegrees(rightArm.getCurrentPosition());
+        double deltaAngle = encodersToDegrees(leftArm.getCurrentPosition());
         angle = deltaAngle + MINIMUM_SOFT_LIMIT; //or default
     }
 
@@ -146,6 +148,12 @@ public class Arm {
     }
     public double getPower(){
         return power;
+    }
+    public double getLeftPower(){
+        return leftArm.getPower();
+    }
+    public double getRightPower(){
+        return rightArm.getPower();
     }
 
     public void setTargetAngle(double targetAngle){

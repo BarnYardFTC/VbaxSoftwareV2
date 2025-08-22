@@ -107,7 +107,7 @@ public class TeleopController {
 
     private void operateArm(){
         double manualPower = gamepadEx2.gamepad.right_trigger - gamepadEx2.gamepad.left_trigger;
-        if (manualPower > 0){
+        if (Math.abs(manualPower) > 0){
             arm.operateManually(manualPower);
         }
         else if (gamepadEx2.wasJustPressed(GamepadKeys.Button.A)) {
@@ -136,6 +136,8 @@ public class TeleopController {
         telemetry.addData("controlMode" , arm.getControlMode());
         telemetry.addData("isPowerReleaseRequired",arm.isPowerReleaseRequired());
         telemetry.addData("power" , arm.getPower());
+        telemetry.addData("leftPower", arm.getLeftPower());
+        telemetry.addData("rightPower", arm.getRightPower());
         telemetry.update();
     }
 
