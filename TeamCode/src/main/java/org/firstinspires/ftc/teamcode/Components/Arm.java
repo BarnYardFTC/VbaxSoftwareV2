@@ -23,7 +23,7 @@ public class Arm {
     public static final double DEFAULT           = 84;
     public static final double PREPARE_SPECIMEN  = 210;
     public static final double SCORE_SPECIMEN    = 148;
-    public static final double PREPARE_SUBMERSIBLE = 275;
+    public static final double PREPARE_SUBMERSIBLE = 265;
     public static final double COLLECT           = 300;
 
     // Soft limits

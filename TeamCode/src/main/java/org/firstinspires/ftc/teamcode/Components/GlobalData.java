@@ -22,4 +22,8 @@ public class GlobalData {
         YELLOW,
         UNKNOWN
     }
+
+    public enum RobotSystem {
+        ARM, DRIVETRAIN, PAYLOAD
+    }
 }

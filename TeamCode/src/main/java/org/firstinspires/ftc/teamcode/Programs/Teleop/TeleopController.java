@@ -192,28 +192,6 @@ public class TeleopController {
     }
 
 
-    private class BackgroundOperation implements Action {
 
-        @Override
-        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            arm.operate();
-            payload.operate();
-            drivetrain.operate();
-            operateGamepads();
-            operateTelemetry();
-            return true;
-        }
-    }
-    private Action backgroundOperation(){
-        return new BackgroundOperation();
-    }
-
-
-
-    public Action operateAction(){
-        return new ParallelAction(
-                backgroundOperation()
-        );
-    }
 
 }
