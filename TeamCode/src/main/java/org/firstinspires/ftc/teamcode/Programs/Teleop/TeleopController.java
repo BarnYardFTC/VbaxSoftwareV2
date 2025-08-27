@@ -53,6 +53,7 @@ public class TeleopController {
     /* =========================
        CONSTRUCTOR
        ========================= */
+
     public TeleopController(OpMode opMode, GlobalData.Alliance alliance, double headingOffset) {
 
         HardwareMap hardwareMap = opMode.hardwareMap;
@@ -98,6 +99,7 @@ public class TeleopController {
         operateTelemetry();
         operateGamepads();
     }
+
 
     /* =========================
        ARM CONTROL LOGIC
