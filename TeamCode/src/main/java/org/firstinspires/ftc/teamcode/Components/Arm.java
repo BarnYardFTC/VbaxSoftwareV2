@@ -128,6 +128,10 @@ public class Arm {
         this.targetAngle = targetAngle;
         controlMode = ControlMode.AUTO_CONTROL;
     }
+    public boolean hasArmArrived() {
+        if (areAnglesEqual(angle, targetAngle, ANGLE_TOLERANCE)) return true;
+        else return false;
+    }
     private double ticksToDegrees(double ticks) {
         return ticks / TICKS_PER_DEGREE;
     }

@@ -71,5 +71,7 @@ public class Payload {
             leds.turnOff();
         }
     }
-
+    public boolean isSampleIn() {
+        return colorSensor.isSampleDetected();
+    }
 }
