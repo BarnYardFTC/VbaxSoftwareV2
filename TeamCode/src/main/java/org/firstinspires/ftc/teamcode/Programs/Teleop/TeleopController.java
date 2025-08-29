@@ -25,6 +25,7 @@ public class TeleopController {
        ========================= */
     private final Drivetrain drivetrain;
     private final Arm arm;
+    private final Payload payload;
 
     private final GamepadEx gamepadEx1;
     private final GamepadEx gamepadEx2;
@@ -40,7 +41,7 @@ public class TeleopController {
     /* =========================
        CONSTRUCTOR
        ========================= */
-    public TeleopController(OpMode opMode, double headingOffset) {
+    public TeleopController(OpMode opMode, double headingOffset, GlobalData.Alliance alliance) {
 
         HardwareMap hardwareMap = opMode.hardwareMap;
 
@@ -58,11 +59,17 @@ public class TeleopController {
 
 
         this.arm = new Arm(
-                hardwareMap.get(DcMotorEx.class , "rightArm"),
-                hardwareMap.get(DcMotorEx.class,"leftArm"),
+                hardwareMap.get(DcMotorEx.class, "rightArm"),
+                hardwareMap.get(DcMotorEx.class, "leftArm"),
                 GlobalData.OpmodeType.TELEOP
         );
 
+        this.payload = new Payload(
+                hardwareMap.get(NormalizedColorSensor.class, "colorSensor"),
+                hardwareMap.get(CRServo.class, "rightServo"),
+                hardwareMap.get(CRServo.class, "leftServo"),
+                alliance
+        );
 
 
         this.gamepadEx1 = new GamepadEx(opMode.gamepad1);
@@ -77,6 +84,7 @@ public class TeleopController {
         operateTelemetry();
         operateGamepads();
         operateArm();
+        operatePayload();
     }
 
 
@@ -105,24 +113,19 @@ public class TeleopController {
         drivetrain.operate();
     }
 
-    private void operateArm(){
+    private void operateArm() {
         double manualPower = gamepadEx2.gamepad.right_trigger - gamepadEx2.gamepad.left_trigger;
-        if (Math.abs(manualPower) > 0){
+        if (Math.abs(manualPower) > 0) {
             arm.operateManually(manualPower);
-        }
-        else if (gamepadEx2.wasJustPressed(GamepadKeys.Button.A)) {
+        } else if (gamepadEx2.wasJustPressed(GamepadKeys.Button.A)) {
             arm.setTargetAngle(Arm.DEFAULT);
-        }
-        else if (gamepadEx2.wasJustPressed(GamepadKeys.Button.B)) {
+        } else if (gamepadEx2.wasJustPressed(GamepadKeys.Button.B)) {
             arm.setTargetAngle(Arm.PREP_SUB);
-        }
-        else if (gamepadEx2.wasJustPressed(GamepadKeys.Button.X)) {
+        } else if (gamepadEx2.wasJustPressed(GamepadKeys.Button.X)) {
             arm.setTargetAngle(Arm.SCORE_SPECIMEN);
-        }
-        else if (gamepadEx2.wasJustPressed(GamepadKeys.Button.Y)) {
+        } else if (gamepadEx2.wasJustPressed(GamepadKeys.Button.Y)) {
             arm.setTargetAngle(Arm.COLLECT);
-        }
-        else if (gamepadEx2.wasJustPressed(GamepadKeys.Button.DPAD_UP)) {
+        } else if (gamepadEx2.wasJustPressed(GamepadKeys.Button.DPAD_UP)) {
             arm.setTargetAngle(Arm.PREP_SPECIMEN);
         }
 
@@ -130,19 +133,30 @@ public class TeleopController {
     }
 
 
-    private void operateTelemetry(){
-        telemetry.addData("angle" ,  arm.getAngle());
-        telemetry.addData("targetAngle" , arm.getTargetAngle());
-        telemetry.addData("controlMode" , arm.getControlMode());
-        telemetry.addData("isPowerReleaseRequired",arm.isPowerReleaseRequired());
-        telemetry.addData("power" , arm.getPower());
+    private void operateTelemetry() {
+        telemetry.addData("angle", arm.getAngle());
+        telemetry.addData("targetAngle", arm.getTargetAngle());
+        telemetry.addData("controlMode", arm.getControlMode());
+        telemetry.addData("isPowerReleaseRequired", arm.isPowerReleaseRequired());
+        telemetry.addData("power", arm.getPower());
         telemetry.addData("leftPower", arm.getLeftPower());
         telemetry.addData("rightPower", arm.getRightPower());
         telemetry.update();
     }
 
-    private void operateGamepads(){
+    private void operateGamepads() {
         gamepadEx1.readButtons();
         gamepadEx2.readButtons();
     }
+
+    private void operatePayload() {
+        if (gamepadEx2.isDown(GamepadKeys.Button.LEFT_BUMPER)) {
+            payload.unload();
+        }
+        if(gamepadEx2.isDown(GamepadKeys.Button.RIGHT_BUMPER)){
+            payload.intake();
+        }
+        payload.operate();
+    }
 }
+
