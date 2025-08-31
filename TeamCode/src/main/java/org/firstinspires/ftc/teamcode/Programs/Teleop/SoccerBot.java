@@ -1,22 +1,32 @@
 package org.firstinspires.ftc.teamcode.Programs.Teleop;
 
+import com.qualcomm.hardware.bosch.BHI260IMU;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.IMU;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Components.GlobalData;
 
 @TeleOp(name="SoccerTeleop", group="!")  // Registers this as a TeleOp mode named "RedTeleop"
 public class SoccerBot extends LinearOpMode {
     private DcMotor leftFront, rightFront, leftBack, rightBack;
-    private static final double SPEED_MODIFIER = 0.7;
+
+    private BHI260IMU imu;
+    private static final double SPEED_MODIFIER = 1;
     @Override
     public void runOpMode() throws InterruptedException {
         leftFront = hardwareMap.get(DcMotor.class, "leftFront");
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
         leftBack = hardwareMap.get(DcMotor.class, "leftBack");
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
+
+        imu = hardwareMap.get(BHI260IMU.class, "imu");
+        imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD)));
+        imu.resetYaw();
 
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -36,6 +46,16 @@ public class SoccerBot extends LinearOpMode {
             double spdX = gamepad1.left_stick_x * SPEED_MODIFIER;
             double spdY = -gamepad1.left_stick_y * SPEED_MODIFIER;
             double spdTurn = gamepad1.right_stick_x * SPEED_MODIFIER;
+
+            double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+            telemetry.addData("heading", heading);
+            telemetry.update();
+
+            double adjX = spdX*Math.cos(heading) + spdY*Math.sin(heading);
+            double adjY = -spdX*Math.sin(heading) + spdY*Math.cos(heading);
+
+            spdX = adjX;
+            spdY = adjY;
 
             leftFront.setPower((spdY + spdX + spdTurn));
             rightFront.setPower((spdY - spdX - spdTurn));
