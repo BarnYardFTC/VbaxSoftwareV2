@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.components.GlobalData.SampleColor;
 import org.firstinspires.ftc.teamcode.components.Leds;
 
 @Config
-public class   Payload {
+public class Payload {
 
     /* =========================
        CONFIGURATION CONSTANTS
