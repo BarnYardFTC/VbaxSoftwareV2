@@ -47,7 +47,7 @@ public class ColorSensorEx {
     }
 
     /*───────────────────────────────*
-     *        MAIN OPERATE LOOP      *
+     *       MAIN OPERATE LOOP      *
      *───────────────────────────────*/
     /**
      * Call this method once per main robot loop to update cached sensor data periodically.

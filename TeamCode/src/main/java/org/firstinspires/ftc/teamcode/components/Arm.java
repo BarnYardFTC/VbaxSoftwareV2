@@ -180,8 +180,12 @@ public class Arm {
         return Math.cos(Math.toRadians(angle - 90)) * f;
     }
 
-    private boolean isAngleEqual(double a1, double a2, double tolerance) {
+    public boolean isAngleEqual(double a1, double a2, double tolerance) {
         return Math.abs(a1 - a2) <= tolerance;
+    }
+
+    public boolean hasArrived(){
+        return isAngleEqual(angle, targetAngle, ANGLES_EQUAL_TOLERANCE);
     }
 
     private void setRunMode(DcMotor.RunMode runMode) {

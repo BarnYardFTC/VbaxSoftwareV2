@@ -41,7 +41,7 @@ public class   Payload {
 
     private final ElapsedTime intakeTimer = new ElapsedTime();
     public boolean timerStarted;
-    public boolean sampleIn;
+    public boolean sampleFullyIn;
 
     /* =========================
        CONSTRUCTOR
@@ -55,7 +55,7 @@ public class   Payload {
         this.controlMode = ControlMode.HOLD;
         this.reqControlMode = ControlMode.HOLD;
         timerStarted = false;
-        sampleIn = false;
+        sampleFullyIn = false;
     }
 
     /* =========================
@@ -80,7 +80,7 @@ public class   Payload {
     private void determineControlMode() {
         if (isOpposingSampleIn()) controlMode = ControlMode.UNLOAD;
         else if (reqControlMode == ControlMode.INTAKE){
-            if (sampleIn) controlMode = ControlMode.HOLD;
+            if (sampleFullyIn) controlMode = ControlMode.HOLD;
             else if (isSampleDetected()) controlMode = ControlMode.TIMED_INTAKE;
             else controlMode = ControlMode.INTAKE;
         }
@@ -99,7 +99,7 @@ public class   Payload {
         if (intakeTimer.milliseconds() >= INTAKE_TIME) {
             controlMode = ControlMode.HOLD;
             resetIntakeTimer();
-            sampleIn = true;
+            sampleFullyIn = true;
         }
         else {
             endEffector.intake();
@@ -152,9 +152,13 @@ public class   Payload {
        STATE UPDATES
        ========================= */
     private void update(){
-        if (controlMode == ControlMode.UNLOAD || !isSampleDetected()) sampleIn = false;
+        if (controlMode == ControlMode.UNLOAD || !isSampleDetected()) sampleFullyIn = false;
         if (controlMode == ControlMode.TIMED_INTAKE) reqControlMode = ControlMode.INTAKE;
         else reqControlMode = ControlMode.HOLD;
+    }
+
+    public boolean isSampleFullyIn(){
+        return colorSensor.isSampleDetected();
     }
 
 }
