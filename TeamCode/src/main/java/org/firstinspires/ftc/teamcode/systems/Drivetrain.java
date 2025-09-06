@@ -1,8 +1,12 @@
 package org.firstinspires.ftc.teamcode.systems;
 
+import com.arcrobotics.ftclib.controller.PIDController;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.components.Limelight;
 import org.firstinspires.ftc.teamcode.components.MecanumDriveComponent;
 import org.firstinspires.ftc.teamcode.components.Otos;
 
@@ -11,8 +15,13 @@ public class Drivetrain {
     /* =========================
        COMPONENTS
        ========================= */
-    private final MecanumDriveComponent driveComponent;
-    private final Otos otos;
+    private MecanumDriveComponent driveComponent;
+    private Otos otos;
+
+    private Limelight limelight;
+    private PIDController pidControllerX, pidControllerY, pidControllerT;
+    private double pX = 0, dX = 0, pY = 0, dY = 0, pT = 0, dT = 0;
+
 
     /* =========================
        CONSTRUCTOR
@@ -22,6 +31,21 @@ public class Drivetrain {
                       DcMotor rightFront, DcMotor rightBack) {
         this.driveComponent = new MecanumDriveComponent(leftFront, rightFront, leftBack, rightBack);
         this.otos = new Otos(otosSensor, headingOffset);
+    }
+
+    public Drivetrain(Limelight3A limelight3A,
+                      DcMotor leftFront, DcMotor leftBack,
+                      DcMotor rightFront, DcMotor rightBack) {
+        this.driveComponent = new MecanumDriveComponent(leftFront, rightFront, leftBack, rightBack);
+
+        this.limelight = new Limelight(limelight3A);
+        pidControllerX = new PIDController(pX, 0, dX);
+        pidControllerY = new PIDController(pY, 0, dY);
+        pidControllerT = new PIDController(pT, 0, dT);
+    }
+
+    public void start(){
+        limelight.start();
     }
 
     /* =========================
@@ -35,9 +59,52 @@ public class Drivetrain {
         driveComponent.adjustSpeedForHeading(otos.getHeading());
     }
 
+    double spdX, spdY, spdT, Dx, Dy, Dt;
+
+    private void determineSpdBasedOnD(double Dx, double Dy, double Dt){
+        spdX = convertDiffToSpd(Dx, pidControllerX);
+        spdY = convertDiffToSpd(Dy, pidControllerY);
+        spdT = convertDiffToSpd(Dt, pidControllerT);
+        driveComponent.setSpeed(spdX, spdY, spdT);
+        driveComponent.adjustSpeedForHeading(Dt);
+
+        // TODO telemtry - temp
+        this.Dt = Dt;
+        this.Dy = Dy;
+        this.Dx = Dx;
+    }
+
+    private double convertDiffToSpd(double diff, PIDController pidController){
+        return pidController.calculate(diff, 0);
+    }
+
     /* =========================
        MAIN OPERATION
        ========================= */
+
+    public void operateAuto(){
+        limelight.operate();
+        pidControllerX.setPID(pX, 0, dX);
+        pidControllerY.setPID(pY, 0, dY);
+        pidControllerT.setPID(pT, 0, dT);
+
+        determineSpdBasedOnD(limelight.getDx(), limelight.getDy(), limelight.getDt());
+        driveComponent.translateSpeedToPower();
+    }
+
+    public void displayData(Telemetry telemetry){
+        telemetry.addData("Dx", Dx);
+        telemetry.addData("Dy", Dy);
+        telemetry.addData("Dt", Dt);
+        telemetry.addData("converted-spdX", spdX);
+        telemetry.addData("converted-spdY", spdY);
+        telemetry.addData("converted-spdT", spdT);
+        telemetry.addData("final-spdX", driveComponent.getSpdX());
+        telemetry.addData("final-spdY", driveComponent.getSpdY());
+        telemetry.addData("final-spdT", driveComponent.getSpdTurn());
+
+    }
+
     public void operate() {
         driveComponent.translateSpeedToPower();
     }
