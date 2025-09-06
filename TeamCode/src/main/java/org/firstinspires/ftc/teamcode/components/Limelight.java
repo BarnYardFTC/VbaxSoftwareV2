@@ -53,6 +53,7 @@ public class Limelight {
                 calculateD(fr);
             }
         }
+        Dx = 0; Dy = -0.22; Dt = 0;
 
     }
 }

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.systems;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
@@ -10,6 +11,8 @@ import org.firstinspires.ftc.teamcode.components.Limelight;
 import org.firstinspires.ftc.teamcode.components.MecanumDriveComponent;
 import org.firstinspires.ftc.teamcode.components.Otos;
 
+
+@Config
 public class Drivetrain {
 
     /* =========================
@@ -20,7 +23,9 @@ public class Drivetrain {
 
     private Limelight limelight;
     private PIDController pidControllerX, pidControllerY, pidControllerT;
-    private double pX = 0, dX = 0, pY = 0, dY = 0, pT = 0, dT = 0;
+    public static double pX = 1.5, dX = 0, pY = 1.5, dY = 0, pT = 0.05, dT = 0;
+
+    private double Y_DISTANCE = 0.22;
 
 
     /* =========================
@@ -59,14 +64,16 @@ public class Drivetrain {
         driveComponent.adjustSpeedForHeading(otos.getHeading());
     }
 
-    double spdX, spdY, spdT, Dx, Dy, Dt;
+    double spdX, spdT, spdY, Dx, Dy, Dt;
+
 
     private void determineSpdBasedOnD(double Dx, double Dy, double Dt){
-        spdX = convertDiffToSpd(Dx, pidControllerX);
-        spdY = convertDiffToSpd(Dy, pidControllerY);
-        spdT = convertDiffToSpd(Dt, pidControllerT);
-        driveComponent.setSpeed(spdX, spdY, spdT);
-        driveComponent.adjustSpeedForHeading(Dt);
+        spdX = convertDiffToSpd(Dx, 0, pidControllerX);
+        spdY = convertDiffToSpd(Dy, -Y_DISTANCE ,pidControllerY);
+        spdT = convertDiffToSpd(Dt, 0, pidControllerT);
+
+        driveComponent.setSpeed(-spdX, spdY, spdT);
+        driveComponent.adjustSpeedForHeading(Math.toRadians(-Dt));
 
         // TODO telemtry - temp
         this.Dt = Dt;
@@ -74,8 +81,8 @@ public class Drivetrain {
         this.Dx = Dx;
     }
 
-    private double convertDiffToSpd(double diff, PIDController pidController){
-        return pidController.calculate(diff, 0);
+    private double convertDiffToSpd(double diff, double target, PIDController pidController){
+        return pidController.calculate(diff, target);
     }
 
     /* =========================
@@ -89,6 +96,7 @@ public class Drivetrain {
         pidControllerT.setPID(pT, 0, dT);
 
         determineSpdBasedOnD(limelight.getDx(), limelight.getDy(), limelight.getDt());
+
         driveComponent.translateSpeedToPower();
     }
 
