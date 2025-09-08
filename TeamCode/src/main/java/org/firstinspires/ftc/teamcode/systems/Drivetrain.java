@@ -23,9 +23,11 @@ public class Drivetrain {
 
     private Limelight limelight;
     private PIDController pidControllerX, pidControllerY, pidControllerT;
-    public static double pX = 1.5, dX = 0, pY = 1.5, dY = 0, pT = 0.05, dT = 0;
+    public static double pX = 1.5, dX = 0, pY = 1.5, dY = 0, pPitch = 0.05, dPitch = 0, pYaw = 0, dYaw = 0;
 
     private double Y_DISTANCE = 0.22;
+    private double PITCH_ANGLE = 0;
+    private double YAW_ANGLE = 0;
 
 
     /* =========================
@@ -44,9 +46,10 @@ public class Drivetrain {
         this.driveComponent = new MecanumDriveComponent(leftFront, rightFront, leftBack, rightBack);
 
         this.limelight = new Limelight(limelight3A);
-        pidControllerX = new PIDController(pX, 0, dX);
-        pidControllerY = new PIDController(pY, 0, dY);
-        pidControllerT = new PIDController(pT, 0, dT);
+//        pidControllerX = new PIDController(pX, 0, dX);
+//        pidControllerY = new PIDController(pY, 0, dY);
+        pidControllerT = new PIDController(pPitch, 0, dPitch);
+//        pidControllerT = new PIDController(pPitch, 0, dYaw);
     }
 
     public void start(){
@@ -67,9 +70,9 @@ public class Drivetrain {
     double spdX, spdT, spdY, Dx, Dy, Dt;
 
 
-    private void determineSpdBasedOnD(double Dx, double Dy, double Dt){
-        spdX = convertDiffToSpd(Dx, 0, pidControllerX);
-        spdY = convertDiffToSpd(Dy, -Y_DISTANCE ,pidControllerY);
+    private void determineSpdBasedOnD(double Dt){
+//        spdX = convertDiffToSpd(Dx, 0, pidControllerX);
+//        spdY = convertDiffToSpd(Dy, -Y_DISTANCE ,pidControllerY);
         spdT = convertDiffToSpd(Dt, 0, pidControllerT);
 
         driveComponent.setSpeed(-spdX, spdY, spdT);
@@ -91,11 +94,11 @@ public class Drivetrain {
 
     public void operateAuto(){
         limelight.operate();
-        pidControllerX.setPID(pX, 0, dX);
-        pidControllerY.setPID(pY, 0, dY);
-        pidControllerT.setPID(pT, 0, dT);
+//        pidControllerX.setPID(pX, 0, dX);
+//        pidControllerY.setPID(pY, 0, dY);
+        pidControllerT.setPID(pPitch, 0, dPitch);
 
-        determineSpdBasedOnD(limelight.getDx(), limelight.getDy(), limelight.getDt());
+        determineSpdBasedOnD(limelight.getDpitch());
 
         driveComponent.translateSpeedToPower();
     }

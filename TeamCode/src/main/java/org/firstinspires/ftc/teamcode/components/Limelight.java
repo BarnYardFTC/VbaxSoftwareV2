@@ -12,14 +12,15 @@ public class Limelight {
 
     private Limelight3A limelight;
     private LLResult llResult;
-    private double Dx, Dy, Dt;
+    private double Dx, Dy, Dpitch, Dyaw;
     private final int PIPELINE = 7;
 
     public Limelight(Limelight3A limelight){
         this.limelight = limelight;
         Dx = 0;
         Dy = 0;
-        Dt = 0;
+        Dpitch = 0;
+        Dyaw = 0;
         limelight.pipelineSwitch(PIPELINE);
     }
     // This function is required to execute right when the OpMode starts (after init)
@@ -35,14 +36,19 @@ public class Limelight {
         return Dy;
     }
 
-    public double getDt(){
-        return Dt;
+    public double getDpitch(){
+        return Dpitch;
+    }
+
+    public double getDyaw() {
+        return Dyaw;
     }
 
     private void calculateD(LLResultTypes.FiducialResult fr){
         Dx = fr.getCameraPoseTargetSpace().getPosition().x;
         Dy = fr.getCameraPoseTargetSpace().getPosition().z;
-        Dt = fr.getCameraPoseTargetSpace().getOrientation().getPitch(AngleUnit.DEGREES);
+        Dpitch = fr.getCameraPoseTargetSpace().getOrientation().getPitch(AngleUnit.DEGREES);
+        Dyaw = fr.getCameraPoseTargetSpace().getOrientation().getYaw(AngleUnit.DEGREES);
     }
 
     public void operate() {
@@ -53,7 +59,7 @@ public class Limelight {
                 calculateD(fr);
             }
         }
-        Dx = 0; Dy = -0.22; Dt = 0;
+        Dx = 0; Dy = -0.22; Dpitch = 0; Dyaw = 0;
 
     }
 }
